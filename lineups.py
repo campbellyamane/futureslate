@@ -6,10 +6,10 @@ from bs4 import BeautifulSoup
 r = requests.get("http://www.baseballpress.com/lineups")
 soup = BeautifulSoup(r.content, 'html.parser')
 
-matchups = []
-
 #creates an array of away vs home matchups for the day
 def get_matchups():
+    matchups = []
+    times = []
     h = ""
     a = ""
     for team in soup.findAll("div", class_="team-name"):
@@ -22,10 +22,22 @@ def get_matchups():
             h = ""
             a = team.text
     matchups.append([a,h])
-    return matchups
+
+    #gets gametimes as well
+    for time in soup.findAll("div", class_="game-time"):
+        times.append(time.text)
+
+    return [matchups, times]
 
 #takes in the game that you want to simulate and returns home and away roster arrays
-def get_lineups(x):
+def get_lineups():
+    matchups = get_matchups()[0]
+    times = get_matchups()[1]
+    for i, m in enumerate(matchups):
+        print str(i+1) + ". " + m[0] + " vs " + m[1] + " [" + times[i] + "]"
+    print "\n"
+
+    x = int(raw_input("Which game would you like to simulate?\n"))-1
     count = 0
     home = []
     away = []
@@ -52,4 +64,8 @@ def get_lineups(x):
                                     home.append(n.text)
         else:
             count += 1
-    return [away, home]
+    if len(home) == 10 and len(away) == 10:
+        return [away, home]
+    else:
+        print "\nThe lineups for the selected matchup have not been set yet. Please select a different game or try again later. \n*Most lineups set around 3 hours before first pitch.\n"
+        get_lineups()

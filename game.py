@@ -1,23 +1,19 @@
-from lineups import get_lineups, get_matchups
+from lineups import get_lineups
 from outcomes import at_bat, steal
+import sys
 
 #connects to sqlite database which uses fangraphs data from 2017-2018
 import sqlite3
 conn = sqlite3.connect('baseball.db')
 c = conn.cursor()
 
-matchups = get_matchups()
-for i, m in enumerate(matchups):
-    print str(i+1) + ". " + m[0] + " vs " + m[1]
-print "\n"
-
 #allows user to select the matchup they want
-pick = int(raw_input("Which game would you like to simulate?\n"))-1
-lineups = get_lineups(pick)
+get_lineups()
 
-#for rookie callups or players who don't have data, they are defaulted to a league average player's stats
-default_hitter = ['name', 'team', 'pos', 0.09,0.22,0.40,0.25,0.32,0.42,0.75,0.17,4.38,0.30,1.25,0.20,0.44,0.36,0.10,0.14,0.07,0.28, 000]
-default_pitcher = ['name', 'team', 0.22,0.09,0.13,0.25,0.30,4.32,1.25,0.20,0.44,0.36,0.10,0.14,0.07,0.28, 0, 0, 000]
+#for rookie callups or players who don't have data, they are defaulted to an average rookie's stats
+
+default_hitter = ['name', 'team', 'pos', 0.08,0.25,0.36,0.25,0.32,0.41,0.73,0.16,3.74,0.31,1.43,0.21,0.45,0.34,0.08,0.14,0.06,0.15, 000]
+default_pitcher = ['name', 'team', 0.22,0.09,0.12,0.25,0.29,4.52,1.42,0.20,0.44,0.36,0.11,0.14,0.06,0.18,0.30,3.08, 000]
 
 #game variables
 away = lineups[0]
@@ -79,7 +75,7 @@ except:
 track = [0,0]
 
 #loops through matchup 1000 times to even out results
-for x in range(0, 1000):
+for x in range(0, 10000):
     batting = [] #hitting team's stats array
     inning = 1
     top = True
