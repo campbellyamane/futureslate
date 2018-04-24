@@ -30,14 +30,7 @@ def get_matchups():
     return [matchups, times]
 
 #takes in the game that you want to simulate and returns home and away roster arrays
-def get_lineups():
-    matchups = get_matchups()[0]
-    times = get_matchups()[1]
-    for i, m in enumerate(matchups):
-        print str(i+1) + ". " + m[0] + " vs " + m[1] + " [" + times[i] + "]"
-    print "\n"
-
-    x = int(raw_input("Which game would you like to simulate?\n"))-1
+def get_lineups(x):
     count = 0
     home = []
     away = []
@@ -58,14 +51,10 @@ def get_lineups():
                     for players in pitch.findAll("div", class_="text"):
                         for p in players.findAll("div"):
                             for n in p.findAll("a"):
-                                if len(away) < 10:
+                                if len(away) == 9:
                                     away.append(n.text)
-                                elif len(home) < 10:
+                                elif len(home) == 9:
                                     home.append(n.text)
         else:
             count += 1
-    if len(home) == 10 and len(away) == 10:
-        return [away, home]
-    else:
-        print "\nThe lineups for the selected matchup have not been set yet. Please select a different game or try again later. \n*Most lineups set around 3 hours before first pitch.\n"
-        get_lineups()
+    return [away, home]

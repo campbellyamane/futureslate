@@ -1,4 +1,4 @@
-from lineups import get_lineups
+from lineups import get_lineups, get_matchups
 from outcomes import at_bat, steal
 import sys
 
@@ -8,7 +8,20 @@ conn = sqlite3.connect('baseball.db')
 c = conn.cursor()
 
 #allows user to select the matchup they want
-get_lineups()
+matchups = get_matchups()[0]
+times = get_matchups()[1]
+
+while True:
+    for i, m in enumerate(matchups):
+        print str(i+1) + ". " + m[0] + " vs " + m[1] + " [" + times[i] + "]"
+    print "\n"
+
+    pick = int(raw_input("Which game would you like to simulate?\n"))-1
+    lineups = get_lineups(pick)
+    if len(lineups[0]) == 10 and len(lineups[0]) == 10:
+        break
+    else:
+        print "\nThe lineups for the selected matchup have not been set yet. Please select a different matchup.\n*Lineups generally set around 3 hours before gametime\n"
 
 #for rookie callups or players who don't have data, they are defaulted to an average rookie's stats
 
@@ -25,15 +38,15 @@ home_stats = []
 
 
 #selects data for all players in lineup and puts it into an array
-for x in range (0,9):
-    c.execute('SELECT * FROM Hitting WHERE Name=?', (away[x],))
+for hitter in range (0,9):
+    c.execute('SELECT * FROM Hitting WHERE Name=?', (away[hitter],))
     try:
         results = c.fetchone()
         len(results)
         away_stats.append(results)
     except:
         temp = default_hitter
-        temp[0] = away[x]
+        temp[0] = away[hitter]
         temp[1] = away[10]
         away_stats.append(temp)
 
@@ -48,15 +61,15 @@ except:
     temp[0] = away[9]
     temp[1] = away[10]
     away_stats.append(temp)
-for x in range (0,9):
-    c.execute('SELECT * FROM Hitting WHERE Name=?', (home[x],))
+for hitter in range (0,9):
+    c.execute('SELECT * FROM Hitting WHERE Name=?', (home[hitter],))
     try:
         results = c.fetchone()
         len(results)
         home_stats.append(results)
     except:
         temp = default_hitter
-        temp[0] = home[x]
+        temp[0] = home[hitter]
         temp[1] = home[10]
         home_stats.append(temp)
 
@@ -75,7 +88,7 @@ except:
 track = [0,0]
 
 #loops through matchup 1000 times to even out results
-for x in range(0, 10000):
+for game in range(0, 5000):
     batting = [] #hitting team's stats array
     inning = 1
     top = True
@@ -135,11 +148,11 @@ for x in range(0, 10000):
 
         #check for winner
         if inning >= 9 and top and score[1] > score[0]:
-            print "\n" + home[10] + " win, " + str(score[1]) +" - " + str(score[0])
+            #print "\n" + home[10] + " win, " + str(score[1]) +" - " + str(score[0])
             track[1] += 1
             break
         elif inning >= 9 and not top and score[1] < score[0]:
-            print "\n" + away[10] + " win, " + str(score[0]) +" - " + str(score[1])
+            #print "\n" + away[10] + " win, " + str(score[0]) +" - " + str(score[1])
             track[0] += 1
             break
 
