@@ -35,14 +35,6 @@ def at_bat(h, p, l, on_base, sit):
     v1 = (h_av - l_av)/v3
     gb = (((v1+v2)/math.sqrt(2)) * v3) + l_av
 
-    h_av = float(h[15])
-    p_av = float(p[11])
-    l_av = float(l[2])
-    v3 = math.sqrt(l_av*(1-l_av))
-    v2 = (p_av - l_av)/v3
-    v1 = (h_av - l_av)/v3
-    fb = (((v1+v2)/math.sqrt(2)) * v3) + l_av
-
     #Morey-Z formula gives negative value for pop-ups, so I used log5 formula here
     h_av = float(h[16])
     p_av = float(p[12])
@@ -147,21 +139,108 @@ def at_bat(h, p, l, on_base, sit):
                 #print h[0] + " lined out."
                 i = outcome
 
-            #groundballs with a runner on first are automatic double plays, couldn't find stats to help come up with a real percentage
+            #groundballs in double play situations determined by Morey-Z Formula
             #again speed determines how other runners react i.e. scoring from third, advancing from second to third
             elif outcome <= ld + gb:
                 if on_base[0] != "" and sit[1] < 2:
-                    on_base[0] = ""
-                    #print h[0] + " grounded into a double play."
-                    if sit == 0:
+                    outcome = random.uniform(0,1)
+
+                    #odds of double play, fielder's choice, or only hitter out
+                    #20, 21, 22 (hitters)
+                    #18, 19, 20 (pitcher)
+                    #4, 5, 6 (league)
+                    h_av = float(h[20])
+                    p_av = float(p[18])
+                    l_av = float(l[4])
+                    v3 = math.sqrt(l_av*(1-l_av))
+                    v2 = (p_av - l_av)/v3
+                    v1 = (h_av - l_av)/v3
+                    gidp = (((v1+v2)/math.sqrt(2)) * v3) + l_av
+
+                    h_av = float(h[21])
+                    p_av = float(p[19])
+                    l_av = float(l[5])
+                    v3 = math.sqrt(l_av*(1-l_av))
+                    v2 = (p_av - l_av)/v3
+                    v1 = (h_av - l_av)/v3
+                    fc = (((v1+v2)/math.sqrt(2)) * v3) + l_av
+
+                    h_av = float(h[22])
+                    p_av = float(p[20])
+                    l_av = float(l[6])
+                    v3 = math.sqrt(l_av*(1-l_av))
+                    v2 = (p_av - l_av)/v3s
+                    v1 = (h_av - l_av)/v3
+                    ho = (((v1+v2)/math.sqrt(2)) * v3) + l_av
+
+                    if outcome <= ho:
+                        #print h[0] + " grounded out."
+                        #print on_base[2][0] + " scored."
                         if on_base[2] != "":
+                            runs += 1
+                        on_base[2] = on_base[1]
+                        on_base[1] = on_base[0]
+                        on_base[0] = ""
+
+                        return [-1, on_base, runs]
+
+                    elif outcome <= ho + fc:
+                        if on_base[1] != "":
+                            if on_base[2] != "":
+                                #print h[0] + " grounded into a fielder's choice."
+                                #print on_base[2][0] + " was thrown out at home."
+                                on_base[2] = on_base[1]
+                                on_base[1] = on_base[0]
+                                on_base[0] = h
+
+                                return [-1, on_base, runs]
+
+                            else:
+                                #print h[0] + " grounded into a fielder's choice."
+                                #print on_base[1][0] + " was thrown out at third."
+                                on_base[1] = on_base[0]
+                                on_base[0] = h
+
+                                return [-1, on_base, runs]
+                        else:
+                            #print h[0] + " grounded into a fielder's choice."
+                            #print on_base[0][0] + " was thrown out at second."
                             #print on_base[2][0] + " scored."
                             on_base[2] = ""
-                        if on_base[1] != "" and float(on_base[1][10]) >= 4 and on_base[0] == "":
-                            #print on_base[1][0] + " advanced to third."
-                            on_base[2] = on_base[1]
-                            on_base[1] = ""
-                    return [-2, on_base, runs]
+                            runs += 1
+                            on_base[0] = h
+
+                            return [-1, on_base, runs]
+                    else:
+                        if sit[1] == 1:
+                            #print h[0] + " grounded into an inning ending double play."
+                            #doesn't matter what happens here because inning is over
+                            return [-2, on_base, runs]
+                        else:
+                            if on_base[1] != "":
+                                if on_base[2] != "":
+                                    #print h[0] + " grounded into a double play with " +  on_base[2][0] + " being thrown out at home."
+                                    on_base[2] = on_base[1]
+                                    on_base[1] = on_base[0]
+                                    on_base[0] = ""
+
+                                    return [-2, on_base, runs]
+
+                                else:
+                                    #print h[0] + " grounded into a double play with " +  on_base[1][0] + " being thrown out at third."
+                                    on_base[1] = on_base[0]
+                                    on_base[0] = h
+
+                                    return [-2, on_base, runs]
+                            else:
+                                #print h[0] + " grounded into a double play with " +  on_base[0][0] + " being thrown out at second."
+                                #print on_base[2][0] + " scored on the play."
+                                on_base[2] = ""
+                                runs += 1
+                                on_base[0] = h
+
+                                return [-2, on_base, runs]
+
                 else:
                     #print h[0] + " grounded out."
                     if sit < 2:
@@ -172,6 +251,7 @@ def at_bat(h, p, l, on_base, sit):
                             #print on_base[1][0] + " advanced to third."
                             on_base[2] = on_base[1]
                             on_base[1] = ""
+
             else:
                 outcome = random.uniform(0,1) #used random number again to determine if flyball is popout or actual flyout
 

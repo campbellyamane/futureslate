@@ -27,8 +27,8 @@ while True:
 
 #for rookie callups or players who don't have data, they are defaulted to an average rookie's stats
 
-default_hitter = ['name', 'team', 0.08,0.25,0.36,0.25,0.32,0.41,0.73,0.16,3.74,0.31,1.43,0.21,0.45,0.34,0.08,0.14,0.06,0.15]
-default_pitcher = ['name', 'team', 0.22,0.09,0.12,0.25,0.29,4.52,1.42,0.20,0.44,0.36,0.11,0.14,0.06,0.18,0.30,3.08]
+default_hitter = ['name', 'team', 0.08,0.25,0.36,0.25,0.32,0.41,0.73,0.16,3.74,0.31,1.43,0.21,0.45,0.34,0.08,0.14,0.06,0.15,0.462290503,0.268918233,0.268791265]
+default_pitcher = ['name', 'team', 0.22,0.09,0.12,0.25,0.29,4.52,1.42,0.20,0.44,0.36,0.11,0.14,0.06,0.18,0.30,3.08,0.462290503,0.268918233,0.268791265]
 
 #game variables
 away = lineups[0]
@@ -87,7 +87,7 @@ except:
     temp[1] = home[10]
     home_stats.append(temp)
 
-c.execute('SELECT AVG("LD%"), AVG("GB%"), AVG("FB%"), AVG("IFFB%") FROM Hitting')
+c.execute('SELECT AVG("LD%"), AVG("GB%"), AVG("FB%"), AVG("IFFB%"), AVG("GIDP%"), AVG("FC%"), AVG("HO%") FROM Hitting')
 league_stats = c.fetchone()
 
 #keeps track of away vs home record when multiple simulations are being run for one matchup
@@ -174,7 +174,7 @@ for game in range(0, 5000):
 #prints winningest team and their victory count
 if track[0] > track[1]:
     print away[10]
-    print track[0]
+    print float(track[0])/5000
 else:
     print home[10]
-    print track[1]
+    print float(track[1])/5000

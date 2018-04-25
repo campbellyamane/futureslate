@@ -1,0 +1,24 @@
+#Starter Equation
+Batters Faced = 7.5006(innings pitched)^0.6732 #if batters faced exceeds number for given inning, pull
+if ((9-inning) > runners on  and runners+1 > lead and outs < 2) and inning < 8:
+	pull
+elif inning == 8 or 9 and no nono and lead =< 3 and 1 runner:
+	pull
+elif inning == 8 or 9 and run scores:
+	pull
+
+	
+
+
+#When to sub relief pitcher
+If non-closer faces 5 in one inning:
+	pull
+If lead > 4 or inning is < 6:
+	non-closer pitches until two men on
+If lead is < 4 in inning 9:
+	bring in closer
+If closer gives up tying run, but not-go ahead:
+	pull
+If closer goes down by 3 or the go up by 4 run is at the plate:
+	pull
+

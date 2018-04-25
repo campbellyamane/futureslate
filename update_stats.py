@@ -50,11 +50,11 @@ def update():
                      players)
     conn.commit()
 
-    #update league average    
-    c.execute('SELECT AVG("LD%"), AVG("FB%"), AVG("GB%"), AVG("IFFB%") FROM Hitting')
+    #update league average
+    c.execute('SELECT AVG("LD%"), AVG("FB%"), AVG("GB%"), AVG("IFFB%"), AVG("GIDP%"), AVG("FC%"), AVG("HO%") FROM Hitting')
     results = c.fetchone()
     print results
-    c.execute("""UPDATE 'Hitting' SET 'LD%'=?, 'FB%'=?, 'GB%'=?, 'IFFB%'=? WHERE Team='MLB'""", (results[0], results[1], results[2], results[3],))
+    c.execute("""UPDATE 'Hitting' SET 'LD%'=?, 'FB%'=?, 'GB%'=?, 'IFFB%'=?, 'GIDP%', 'FC%', 'HO%' WHERE Team='MLB'""", (results[0], results[1], results[2], results[3], results[4], results[5], results[6],))
     conn.commit()
 
     pitchers = requests.get("https://www.fangraphs.com/leaders.aspx?pos=all&stats=pit&lg=all&qual=50&type=c,120,121,217,41,43,45,46,47,48,49,50,51,52,53,11,114&season=2018&month=0&season1=2017&ind=0&team=0&rost=0&age=0&filter=&players=0&page=1_500")
