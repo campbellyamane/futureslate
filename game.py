@@ -1,8 +1,10 @@
 from lineups import get_lineups, get_matchups
 from outcomes import at_bat, steal
+from update_stats import update
 import sys
 
-#connects to sqlite database which uses fangraphs data from 2017-2018
+#updates database stats, connects to sqlite database which uses fangraphs data from 2017-2018
+#update()
 import sqlite3
 conn = sqlite3.connect('baseball.db')
 c = conn.cursor()
@@ -25,8 +27,8 @@ while True:
 
 #for rookie callups or players who don't have data, they are defaulted to an average rookie's stats
 
-default_hitter = ['name', 'team', 'pos', 0.08,0.25,0.36,0.25,0.32,0.41,0.73,0.16,3.74,0.31,1.43,0.21,0.45,0.34,0.08,0.14,0.06,0.15, 000]
-default_pitcher = ['name', 'team', 0.22,0.09,0.12,0.25,0.29,4.52,1.42,0.20,0.44,0.36,0.11,0.14,0.06,0.18,0.30,3.08, 000]
+default_hitter = ['name', 'team', 0.08,0.25,0.36,0.25,0.32,0.41,0.73,0.16,3.74,0.31,1.43,0.21,0.45,0.34,0.08,0.14,0.06,0.15]
+default_pitcher = ['name', 'team', 0.22,0.09,0.12,0.25,0.29,4.52,1.42,0.20,0.44,0.36,0.11,0.14,0.06,0.18,0.30,3.08]
 
 #game variables
 away = lineups[0]
@@ -35,6 +37,7 @@ away.append(matchups[int(pick)][0])
 home.append(matchups[int(pick)][1])
 away_stats = []
 home_stats = []
+league_stats = []
 
 
 #selects data for all players in lineup and puts it into an array
@@ -84,6 +87,9 @@ except:
     temp[1] = home[10]
     home_stats.append(temp)
 
+c.execute('SELECT AVG("LD%"), AVG("GB%"), AVG("FB%"), AVG("IFFB%") FROM Hitting')
+league_stats = c.fetchone()
+
 #keeps track of away vs home record when multiple simulations are being run for one matchup
 track = [0,0]
 
@@ -115,7 +121,7 @@ for game in range(0, 5000):
         #setup at at_bats
         while outs < 3:
             sit = [inning, outs, top, score] #the current situation
-            r = at_bat(batting[up], pitching, bases, sit) #gets result of current at bat
+            r = at_bat(batting[up], pitching, league_stats, bases, sit) #gets result of current at bat
 
             #uses return values to update outs, score, and baserunners
             if r[0] == -1:

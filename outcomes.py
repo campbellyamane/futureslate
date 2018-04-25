@@ -1,13 +1,14 @@
 import random
 import math
+import sys
 
 #at bat takes in hitter, pitcher, baserunners, and overall situation
-def at_bat(h, p, on_base, sit):
+def at_bat(h, p, l, on_base, sit):
     outcome = random.uniform(0, 1) #random number
 
     #hitting and pitching walk and strikeout ratios. .000001 added so log scores are never undefined for 0 values
-    hbb = float(h[3]) + .000001
-    hk = float(h[4]) + .000001
+    hbb = float(h[2]) + .000001
+    hk = float(h[3]) + .000001
     pbb = float(p[3]) + .000001
     pk = float(p[2]) + .000001
 
@@ -16,11 +17,39 @@ def at_bat(h, p, on_base, sit):
     k = math.exp(1)**(.906*math.log(float(hk)) + .8644*math.log(float(pk)) + 1.9975)
     babip = 1.0403*float(h[12]) + .9135*float(p[6]) - .2573
 
-    #couldn't find regression equations for batted balls, so just averaged them out between pitcher and hitter
-    ld = (float(h[14]) + float(p[9]))/2
-    gb = (float(h[15]) + float(p[10]))/2
-    fb = (float(h[16]) + float(p[11]))/2
-    iffb = (float(h[17]) + float(p[12]))/2
+    #line drive, ground ball, fly ball all use Morey-Z formula to predict
+
+    h_av = float(h[13])
+    p_av = float(p[9])
+    l_av = float(l[0])
+    v3 = math.sqrt(l_av*(1-l_av))
+    v2 = (p_av - l_av)/v3
+    v1 = (h_av - l_av)/v3
+    ld = (((v1+v2)/math.sqrt(2)) * v3) + l_av
+
+    h_av = float(h[14])
+    p_av = float(p[10])
+    l_av = float(l[1])
+    v3 = math.sqrt(l_av*(1-l_av))
+    v2 = (p_av - l_av)/v3
+    v1 = (h_av - l_av)/v3
+    gb = (((v1+v2)/math.sqrt(2)) * v3) + l_av
+
+    h_av = float(h[15])
+    p_av = float(p[11])
+    l_av = float(l[2])
+    v3 = math.sqrt(l_av*(1-l_av))
+    v2 = (p_av - l_av)/v3
+    v1 = (h_av - l_av)/v3
+    fb = (((v1+v2)/math.sqrt(2)) * v3) + l_av
+
+    #Morey-Z formula gives negative value for pop-ups, so I used log5 formula here
+    h_av = float(h[16])
+    p_av = float(p[12])
+    l_av = float(l[3])
+    v2 = ((1 - h_av)*(1 - p_av))/(1 - l_av)
+    v1 = (h_av * p_av)/l_av
+    iffb = v1/(v1 + v2)
 
     #initialize runs
     runs = 0
@@ -59,7 +88,7 @@ def at_bat(h, p, on_base, sit):
 
         #if batted ball falls in babip range, hit
         if outcome <= babip:
-            iso = random.uniform(0,1)*float(h[10]) #random number weighted by iso or power rating
+            iso = random.uniform(0,1)*float(h[9]) #random number weighted by iso or power rating
 
             #hard iso cutoffs based on line of best fit for 2017-2018 data trends
             #runners updated based on speed
@@ -68,7 +97,7 @@ def at_bat(h, p, on_base, sit):
                 if on_base[2] != "":
                     #print on_base[2][0] + " scored."
                     runs += 1
-                    if on_base[1] != "" and float(on_base[1][11]) >= 3.2:
+                    if on_base[1] != "" and float(on_base[1][10]) >= 3.2:
                         runs +=1
                         on_base[2] = ""
                     else:
@@ -85,7 +114,7 @@ def at_bat(h, p, on_base, sit):
                         runs += 1
                         on_base[b] = ""
                     elif on_base[b] != "" and b == 0:
-                        if float(on_base[b][11]) >= 3.7:
+                        if float(on_base[b][10]) >= 3.7:
                             #print on_base[b][0] + " scored."
                             runs += 1
                             on_base[0] = ""
@@ -128,7 +157,7 @@ def at_bat(h, p, on_base, sit):
                         if on_base[2] != "":
                             #print on_base[2][0] + " scored."
                             on_base[2] = ""
-                        if on_base[1] != "" and float(on_base[1][11]) >= 4 and on_base[0] == "":
+                        if on_base[1] != "" and float(on_base[1][10]) >= 4 and on_base[0] == "":
                             #print on_base[1][0] + " advanced to third."
                             on_base[2] = on_base[1]
                             on_base[1] = ""
@@ -139,7 +168,7 @@ def at_bat(h, p, on_base, sit):
                         if on_base[2] != "":
                             #print on_base[2][0] + " scored."
                             on_base[2] = ""
-                        if on_base[1] != "" and float(on_base[1][11]) >= 4 and on_base[0] == "":
+                        if on_base[1] != "" and float(on_base[1][10]) >= 4 and on_base[0] == "":
                             #print on_base[1][0] + " advanced to third."
                             on_base[2] = on_base[1]
                             on_base[1] = ""
@@ -154,7 +183,7 @@ def at_bat(h, p, on_base, sit):
                 #some runners can tag and score if SPD allows it
                 else:
                     #print h[0] + " flied out."
-                    if on_base[2] != "" and float(on_base[2][11]) >= 3:
+                    if on_base[2] != "" and float(on_base[2][10]) >= 3:
                         #print on_base[2][0] + " tagged up and scored from third."
                         runs += 1
                         on_base[2] = ""
@@ -162,8 +191,8 @@ def at_bat(h, p, on_base, sit):
 
 def steal(runner, on_base, base):
     outcome = random.uniform(0,1)
-    attempt = ((1/330.0) * float(runner[11])**2) + ((13/660.0) * float(runner[11]))
-    steal = ((-.6061*(float(runner[11])**2)) + (16.06 * float(runner[11])))/100.0
+    attempt = ((1/330.0) * float(runner[10])**2) + ((13/660.0) * float(runner[10]))
+    steal = ((-.6061*(float(runner[10])**2)) + (16.06 * float(runner[10])))/100.0
 
     #trendlines for 2017-2018 steal data used to determine likelihood of steal and likelihood of successful steal
     if outcome <= attempt:
