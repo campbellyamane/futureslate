@@ -80,11 +80,42 @@ def at_bat(h, p, l, on_base, sit):
 
         #if batted ball falls in babip range, hit
         if outcome <= babip:
-            iso = random.uniform(0,1)*float(h[9]) #random number weighted by iso or power rating
+            outcome = random.uniform(0,1)
 
-            #hard iso cutoffs based on line of best fit for 2017-2018 data trends
-            #runners updated based on speed
-            if iso <= .101:
+            #Morey-Z formula for hit outcome
+            h_av = float(h[23])
+            p_av = float(p[21])
+            l_av = float(l[7])
+            v3 = math.sqrt(l_av*(1-l_av))
+            v2 = (p_av - l_av)/v3
+            v1 = (h_av - l_av)/v3
+            single = (((v1+v2)/math.sqrt(2)) * v3) + l_av
+
+            h_av = float(h[24])
+            p_av = float(p[22])
+            l_av = float(l[8])
+            v3 = math.sqrt(l_av*(1-l_av))
+            v2 = (p_av - l_av)/v3
+            v1 = (h_av - l_av)/v3
+            double = (((v1+v2)/math.sqrt(2)) * v3) + l_av
+
+            h_av = float(h[25])
+            p_av = float(p[23])
+            l_av = float(l[9])
+            v3 = math.sqrt(l_av*(1-l_av))
+            v2 = (p_av - l_av)/v3
+            v1 = (h_av - l_av)/v3
+            triple = (((v1+v2)/math.sqrt(2)) * v3) + l_av
+
+            h_av = float(h[25])
+            p_av = float(p[23])
+            l_av = float(l[10])
+            v3 = math.sqrt(l_av*(1-l_av))
+            v2 = (p_av - l_av)/v3
+            v1 = (h_av - l_av)/v3
+            hr = (((v1+v2)/math.sqrt(2)) * v3) + l_av
+
+            if outcome <= single:
                 #print h[0] + " hit a single."
                 if on_base[2] != "":
                     #print on_base[2][0] + " scored."
@@ -98,7 +129,7 @@ def at_bat(h, p, l, on_base, sit):
                     on_base[1] = on_base[0]
                 on_base[0] = h
 
-            elif iso <= 0.132:
+            elif outcome <= single + double:
                 #print h[0] + " hit a double."
                 for b in range(2,-1,-1):
                     if on_base[b] != "" and (b == 2 or b == 1):
@@ -113,7 +144,7 @@ def at_bat(h, p, l, on_base, sit):
                         else:
                             on_base[2] = on_base[0]
                 on_base[1] = h
-            elif iso <= .135:
+            elif outcome <= single + double + triple:
                 #print h[0] + " hit a triple."
                 for b in range(2,-1,-1):
                     if on_base[b] != "":
