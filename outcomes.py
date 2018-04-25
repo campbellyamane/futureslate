@@ -169,7 +169,7 @@ def at_bat(h, p, l, on_base, sit):
                     p_av = float(p[20])
                     l_av = float(l[6])
                     v3 = math.sqrt(l_av*(1-l_av))
-                    v2 = (p_av - l_av)/v3s
+                    v2 = (p_av - l_av)/v3
                     v1 = (h_av - l_av)/v3
                     ho = (((v1+v2)/math.sqrt(2)) * v3) + l_av
 
