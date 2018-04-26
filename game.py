@@ -45,6 +45,7 @@ for hitter in range (0,9):
     c.execute('SELECT * FROM Hitting WHERE Name=?', (away[hitter],))
     try:
         results = c.fetchone()
+        len(results)
         away_stats.append(results)
     except:
         temp = default_hitter
