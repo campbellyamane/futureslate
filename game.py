@@ -1,13 +1,30 @@
 from lineups import get_lineups, get_matchups
 from outcomes import at_bat, steal
 from update_stats import update
+from set_new_scores import set_new_scores
 import sys
+import datetime
+from datetime import timedelta
+from dateutil import parser
+import sys
+import string
 
 #updates database stats, connects to sqlite database which uses fangraphs data from 2017-2018
-#update()
 import sqlite3
 conn = sqlite3.connect('baseball.db')
 c = conn.cursor()
+
+c.execute('SELECT MAX(Day) FROM Results WHERE 1')
+last_result = c.fetchone()[0]
+
+yesterday = datetime.datetime.today() - timedelta(1)
+yd =  yesterday.strftime('%Y-%m-%d')
+
+#if yesterday's games have not been reported, update stats and results
+if last_result != yd:
+    update()
+    set_new_scores()
+sys.exit()
 
 #allows user to select the matchup they want
 matchups = get_matchups()[0]
@@ -20,7 +37,7 @@ while True:
 
     pick = int(raw_input("Which game would you like to simulate?\n"))-1
     lineups = get_lineups(pick)
-    if len(lineups[0]) == 10 and len(lineups[0]) == 10:
+    if len(lineups[0]) == 10 and len(lineups[1]) == 10:
         break
     else:
         print "\nThe lineups for the selected matchup have not been set yet. Please select a different matchup.\n*Lineups generally set around 3 hours before gametime\n"
