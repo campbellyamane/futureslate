@@ -7,7 +7,7 @@ from dateutil import parser
 import sys
 import string
 
-def set_new_scores():
+def set_new_scores(last_result):
     yesterday = datetime.datetime.today() - timedelta(1)
     yd =  yesterday.strftime('%Y-%m-%d')
     print yd
@@ -15,10 +15,11 @@ def set_new_scores():
     r = requests.get("https://www.baseball-reference.com/leagues/MLB-schedule.shtml")
     soup = BeautifulSoup(r.content, 'html.parser')
 
-    #creates an array of away vs home matchups for the day
     cities = ['Baltimore ','Arizona ','Boston ','Atlanta ','Chicago ','Cleveland ','Cincinnati ','Detroit ','Colorado ','Houston ', 'Los Angeles ','Kansas City ','Miami ','Milwaukee ','Minnesota ','New York ','Philadelphia ','Oakland ','Pittsburgh ','Seattle ','San Diego ','Tampa Bay ','San Francisco ','Texas ','St. Louis ','Toronto ','Washington ']
     update = []
     cont = True
+
+    #scapes baseball reference for scores
     for score in soup.findAll("div", id="div_6219322505"):
         for game in score.findAll("div"):
             date = ""
@@ -28,7 +29,9 @@ def set_new_scores():
                     date = dt.strftime('%Y-%m-%d')
                 except:
                     cont = False
-            if yd == date:
+            if last_result == date:
+                cont = True
+            if cont:
                 for matchups in game.findAll("p"):
                     insert = []
                     insert.append(date)
@@ -40,6 +43,7 @@ def set_new_scores():
                             insert.append(w.text)
 
                     update.append(insert)
+            if yd == date:
                 break
     for i,r in enumerate(update):
         try:
@@ -54,6 +58,7 @@ def set_new_scores():
         except:
             'ha'
 
+    #adding results to database
     import sqlite3
     conn = sqlite3.connect('baseball.db')
     c = conn.cursor()

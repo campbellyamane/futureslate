@@ -23,8 +23,8 @@ yd =  yesterday.strftime('%Y-%m-%d')
 #if yesterday's games have not been reported, update stats and results
 if last_result != yd:
     update()
-    set_new_scores()
-sys.exit()
+    set_new_scores(last_result)
+
 
 #allows user to select the matchup they want
 matchups = get_matchups()[0]
