@@ -30,6 +30,7 @@ if last_result != yd:
 matchups = get_matchups()[0]
 times = get_matchups()[1]
 
+
 while True:
     for i, m in enumerate(matchups):
         print str(i+1) + ". " + m[0] + " vs " + m[1] + " [" + times[i] + "]"
