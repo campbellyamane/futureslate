@@ -3,11 +3,17 @@ from lxml import html
 from bs4 import BeautifulSoup
 
 #uses baseballpress.com to grab starting lineups and pitchers
-r = requests.get("http://www.baseballpress.com/lineups")
-soup = BeautifulSoup(r.content, 'html.parser')
+
+#both functions now take date strings as arguments as to update the database with earlier projections
 
 #creates an array of away vs home matchups for the day
-def get_matchups():
+def get_matchups(d):
+    if d == "":
+        r = requests.get("http://www.baseballpress.com/lineups")
+        soup = BeautifulSoup(r.content, 'html.parser')
+    else:
+        r = requests.get("http://www.baseballpress.com/lineups/" + str(d))
+        soup = BeautifulSoup(r.content, 'html.parser')
     matchups = []
     times = []
     h = ""
@@ -30,7 +36,13 @@ def get_matchups():
     return [matchups, times]
 
 #takes in the game that you want to simulate and returns home and away roster arrays
-def get_lineups(x):
+def get_lineups(x, d):
+    if d == "":
+        r = requests.get("http://www.baseballpress.com/lineups")
+        soup = BeautifulSoup(r.content, 'html.parser')
+    else:
+        r = requests.get("http://www.baseballpress.com/lineups/" + str(d))
+        soup = BeautifulSoup(r.content, 'html.parser')
     count = 0
     home = []
     away = []
