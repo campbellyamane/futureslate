@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from mpldatacursor import datacursor
+import datetime
 import numpy as np
 
 #updates database stats, connects to sqlite database which uses fangraphs data from 2017-2018
@@ -15,13 +16,14 @@ correct = []
 percentage = []
 
 for i, t in enumerate(total):
-    if t[0] not in dates:
-        dates.append(t[0])
+    d = t[0].split("-")
+    temp_date = datetime.date(int(d[0]), int(d[1]), int(d[2]))
+    if temp_date not in dates:
+        dates.append(temp_date)
         games.append(1)
         correct.append(0)
         if (t[3] == t[4]):
             correct[len(correct)-1] += 1
-
     else:
         games[len(games)-1] += 1
         if (t[3] == t[4]):
@@ -35,5 +37,5 @@ ax = fig.gca()
 ax.set_yticks(np.arange(0, 1.1, 0.1))
 plt.ylim([0,1])
 ax.yaxis.grid()
-plt.plot(dates,percentage,'-o')
+plt.plot_date(dates,percentage,'-o')
 plt.show()

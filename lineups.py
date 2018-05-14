@@ -1,5 +1,4 @@
 import requests
-from lxml import html
 from bs4 import BeautifulSoup
 
 #uses baseballpress.com to grab starting lineups and pitchers

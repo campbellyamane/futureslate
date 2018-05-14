@@ -1,5 +1,4 @@
 import requests
-from lxml import html
 from bs4 import BeautifulSoup
 import sqlite3
 import numpy as np
