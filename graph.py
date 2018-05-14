@@ -1,5 +1,6 @@
 import matplotlib.pyplot as plt
 from mpldatacursor import datacursor
+import numpy as np
 
 #updates database stats, connects to sqlite database which uses fangraphs data from 2017-2018
 import sqlite3
@@ -29,6 +30,10 @@ for i, g in enumerate(games):
     percentage.append(float(correct[i])/games[i])
 
 print float(sum(correct))/sum(games)
+fig = plt.figure()
+ax = fig.gca()
+ax.set_yticks(np.arange(0, 1.1, 0.1))
 plt.ylim([0,1])
+ax.yaxis.grid()
 plt.plot(dates,percentage,'-o')
 plt.show()
